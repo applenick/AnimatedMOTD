@@ -30,6 +30,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.protocol.PacketWrapper;
+import net.md_5.bungee.protocol.packet.PingPacket;
+import net.md_5.bungee.protocol.packet.StatusRequest;
 import net.md_5.bungee.protocol.packet.StatusResponse;
 
 import com.google.gson.JsonObject;
@@ -54,7 +56,7 @@ public class PacketInterceptionDecoder extends MessageToMessageDecoder<PacketWra
 
 			@Override
 			public void run() {
-				if ((System.currentTimeMillis() - previousTime) > 15000) {
+				if ((System.currentTimeMillis() - previousTime) > 10000) {
 					if (isPing) {
 						ctx.close();
 					}
@@ -69,14 +71,19 @@ public class PacketInterceptionDecoder extends MessageToMessageDecoder<PacketWra
 	protected void decode(final ChannelHandlerContext ctx, PacketWrapper packet, List<Object> out) throws Exception {
 		this.previousTime = System.currentTimeMillis();
 		this.ctx = ctx;
-		if (packet.packet.getClass().getSimpleName().equals("PingPacket")) {
-			isPing = true;
-			final ServerData data = statusListener.update();
+
+		if (packet == null || packet.packet == null) {
+			out.add(packet);
+			return;
+		}
+
+		if (packet.packet instanceof PingPacket) {
+			final ServerData data = this.statusListener.update();
+			this.isPing = true;
 			ProxyServer.getInstance().getScheduler().schedule(this.plugin, new Runnable() {
 
 				@Override
 				public void run() {
-
 					// respond with a response packet
 					JsonObject version = new JsonObject();
 					version.addProperty("name", data.getFormat().replace("%COUNT%", ProxyServer.getInstance().getOnlineCount() + "").replace("%MAX%", getMaxCount() + ""));
@@ -94,10 +101,29 @@ public class PacketInterceptionDecoder extends MessageToMessageDecoder<PacketWra
 					if (data.getFavicon() != null) {
 						jsonObject.addProperty("favicon", data.getFavicon());
 					}
-
 					ctx.pipeline().writeAndFlush(new StatusResponse(jsonObject.toString()));
 				}
 			}, data.getSleepMillis(), TimeUnit.MILLISECONDS);
+		} else if (packet.packet instanceof StatusRequest) {
+			final ServerData data = this.statusListener.update();
+			// respond with a response packet
+			JsonObject version = new JsonObject();
+			version.addProperty("name", data.getFormat().replace("%COUNT%", ProxyServer.getInstance().getOnlineCount() + "").replace("%MAX%", getMaxCount() + ""));
+			version.addProperty("protocol", 10000);
+
+			JsonObject countData = new JsonObject();
+			countData.addProperty("max", 0);
+			countData.addProperty("online", 0);
+
+			JsonObject jsonObject = new JsonObject();
+			jsonObject.add("version", version);
+			jsonObject.add("players", countData);
+			jsonObject.addProperty("description", data.getMotd());
+
+			if (data.getFavicon() != null) {
+				jsonObject.addProperty("favicon", data.getFavicon());
+			}
+			ctx.pipeline().writeAndFlush(new StatusResponse(jsonObject.toString()));
 		} else {
 			out.add(packet);
 		}

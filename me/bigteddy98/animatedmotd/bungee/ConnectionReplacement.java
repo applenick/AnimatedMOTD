@@ -36,6 +36,7 @@ import net.md_5.bungee.protocol.Protocol;
 public final class ConnectionReplacement extends ChannelInitializer<Channel> {
 
 	private final Main plugin;
+	private static final String NETTY_LISTENER_NAME = "packet-interception";
 
 	public ConnectionReplacement(Main plugin) {
 		this.plugin = plugin;
@@ -44,18 +45,13 @@ public final class ConnectionReplacement extends ChannelInitializer<Channel> {
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void initChannel(Channel ch) throws Exception {
-		if (BungeeCord.getInstance().getConnectionThrottle().throttle(((InetSocketAddress) ch.remoteAddress()).getAddress())) {
-			// TODO: Better throttle - we can't throttle this way if we want to
-			// maintain 1.7 compat!
-			// ch.close();
-			// return;
-		}
+		BungeeCord.getInstance().getConnectionThrottle().throttle(((InetSocketAddress) ch.remoteAddress()).getAddress());
 		PipelineUtils.BASE.initChannel(ch);
+		
 		ch.pipeline().addBefore(PipelineUtils.FRAME_DECODER, PipelineUtils.LEGACY_DECODER, new LegacyDecoder());
 		ch.pipeline().addAfter(PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder(Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion()));
 		ch.pipeline().addAfter(PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder(Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion()));
-		
-		ch.pipeline().addAfter(PipelineUtils.PACKET_DECODER, "packet-interception", new PacketInterceptionDecoder(this.plugin));
+		ch.pipeline().addAfter(PipelineUtils.PACKET_DECODER, NETTY_LISTENER_NAME, new PacketInterceptionDecoder(this.plugin));
 		
 		ch.pipeline().addBefore(PipelineUtils.FRAME_PREPENDER, PipelineUtils.LEGACY_KICKER, new KickStringWriter());
 		ch.pipeline().get(HandlerBoss.class).setHandler(new InitialHandler(ProxyServer.getInstance(), ch.attr(PipelineUtils.LISTENER).get()));

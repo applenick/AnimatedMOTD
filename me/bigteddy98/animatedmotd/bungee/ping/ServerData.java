@@ -23,6 +23,10 @@ import java.io.ByteArrayOutputStream;
 import javax.imageio.ImageIO;
 import javax.xml.bind.DatatypeConverter;
 
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ListenerInfo;
+
 public class ServerData {
 
 	private final String motd;
@@ -30,8 +34,22 @@ public class ServerData {
 	private final int sleepTime;
 	private final String format;
 
-	public ServerData(String motd, BufferedImage pngIcon, int sleepTime, String format) {
-		this.motd = motd;
+	public ServerData(int sleepTime, String format) {
+		this(getDefaultMOTD(), "", sleepTime, format);
+	}
+
+	public ServerData(String motd1, String motd2, int sleepTime, String format) {
+		this(motd1, motd2, null, sleepTime, format);
+	}
+
+	public ServerData(String motd1, String motd2, BufferedImage pngIcon, int sleepTime, String format) {
+		if (ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', motd1)).length() > 60) {
+			throw new IllegalArgumentException("MOTD line may not be longer than 60 characters per line.");
+		}
+		if (ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', motd2)).length() > 60) {
+			throw new IllegalArgumentException("MOTD line may not be longer than 60 characters per line.");
+		}
+		this.motd = motd1 + "\n" + motd2;
 
 		if (pngIcon != null) {
 			try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -65,5 +83,13 @@ public class ServerData {
 
 	public String getFormat() {
 		return format;
+	}
+
+	@SuppressWarnings("deprecation")
+	private static String getDefaultMOTD() {
+		for (ListenerInfo listener : ProxyServer.getInstance().getConfig().getListeners()) {
+			return listener.getMotd();
+		}
+		return "";
 	}
 }
