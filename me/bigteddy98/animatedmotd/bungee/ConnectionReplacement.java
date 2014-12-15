@@ -45,14 +45,16 @@ public final class ConnectionReplacement extends ChannelInitializer<Channel> {
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void initChannel(Channel ch) throws Exception {
-		BungeeCord.getInstance().getConnectionThrottle().throttle(((InetSocketAddress) ch.remoteAddress()).getAddress());
+		if (BungeeCord.getInstance().getConnectionThrottle().throttle(((InetSocketAddress) ch.remoteAddress()).getAddress())) {
+			// throttling should actually be done here but for some reason
+			// BungeeCord no longer has a working throttle
+		}
 		PipelineUtils.BASE.initChannel(ch);
-		
+
 		ch.pipeline().addBefore(PipelineUtils.FRAME_DECODER, PipelineUtils.LEGACY_DECODER, new LegacyDecoder());
 		ch.pipeline().addAfter(PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder(Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion()));
 		ch.pipeline().addAfter(PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder(Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion()));
-		ch.pipeline().addAfter(PipelineUtils.PACKET_DECODER, NETTY_LISTENER_NAME, new PacketInterceptionDecoder(this.plugin));
-		
+		ch.pipeline().addAfter(PipelineUtils.PACKET_DECODER, NETTY_LISTENER_NAME, new NettyDecoder(this.plugin));
 		ch.pipeline().addBefore(PipelineUtils.FRAME_PREPENDER, PipelineUtils.LEGACY_KICKER, new KickStringWriter());
 		ch.pipeline().get(HandlerBoss.class).setHandler(new InitialHandler(ProxyServer.getInstance(), ch.attr(PipelineUtils.LISTENER).get()));
 	}

@@ -17,6 +17,8 @@
  */
 package me.bigteddy98.animatedmotd.bungee.ping;
 
+import java.util.ArrayList;
+
 import me.bigteddy98.animatedmotd.bungee.Scroller;
 import net.md_5.bungee.api.ChatColor;
 
@@ -27,6 +29,9 @@ public class DefaultPingManager implements StatusListener {
 
 	@Override
 	public ServerData update() {
-		return new ServerData(this.scroller1.next(), this.scroller2.next(), 300, ChatColor.WHITE + "%COUNT%/%MAX% Players Online");
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("player 1");
+		list.add("player 2");
+		return new ServerData(this.scroller1.next(), this.scroller2.next(), 300, ChatColor.WHITE + "%COUNT%/%MAX% Players Online", list);
 	}
 }

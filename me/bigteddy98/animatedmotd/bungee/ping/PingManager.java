@@ -20,6 +20,7 @@ package me.bigteddy98.animatedmotd.bungee.ping;
 public class PingManager {
 
 	private static Class<? extends StatusListener> pingExecutor = DefaultPingManager.class;
+	private static int stopAfter = 100;
 
 	public static Class<? extends StatusListener> getPingManager() {
 		return PingManager.pingExecutor;
@@ -27,5 +28,13 @@ public class PingManager {
 
 	public static void setPingManager(Class<? extends StatusListener> pingManager) {
 		PingManager.pingExecutor = pingManager;
+	}
+
+	public static int getStopAfter() {
+		return stopAfter;
+	}
+
+	public static void setStopAfter(int seconds) {
+		PingManager.stopAfter = seconds;
 	}
 }

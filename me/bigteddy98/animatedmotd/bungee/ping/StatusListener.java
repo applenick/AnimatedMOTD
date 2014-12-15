@@ -18,5 +18,5 @@
 package me.bigteddy98.animatedmotd.bungee.ping;
 
 public interface StatusListener {
-	public ServerData update();
+	public abstract ServerData update();
 }

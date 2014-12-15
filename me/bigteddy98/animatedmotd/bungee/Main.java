@@ -20,8 +20,6 @@ package me.bigteddy98.animatedmotd.bungee;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import me.bigteddy98.animatedmotd.bungee.ping.DefaultPingManager;
-import me.bigteddy98.animatedmotd.bungee.ping.PingManager;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.netty.PipelineUtils;
 
@@ -34,8 +32,6 @@ public class Main extends Plugin {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		PingManager.setPingManager(DefaultPingManager.class);
 	}
 
 	private void setStaticFinalValue(Field field, Object newValue) throws Exception {
