@@ -63,7 +63,6 @@ public class NettyDecoder extends MessageToMessageDecoder<PacketWrapper> {
 		}
 		task = ProxyServer.getInstance().getScheduler().schedule(this.plugin, new Runnable() {
 
-			@Override
 			public void run() {
 				if (!isPing) {
 					task.cancel();
@@ -134,7 +133,6 @@ public class NettyDecoder extends MessageToMessageDecoder<PacketWrapper> {
 				this.isPing = true;
 				ProxyServer.getInstance().getScheduler().schedule(this.plugin, new Runnable() {
 
-					@Override
 					public void run() {
 						// respond with a response packet
 						ctx.pipeline().writeAndFlush((new StatusResponse(buildResponseJSON())));

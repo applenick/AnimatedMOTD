@@ -38,7 +38,6 @@ public class AnimatedFavicon implements StatusListener {
 	}
 	private int currentImage = 0;
 
-	@Override
 	public ServerData update() {
 		int nextImage = this.currentImage++;
 		if (nextImage >= images.size()) {

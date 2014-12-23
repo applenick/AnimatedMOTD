@@ -15,23 +15,22 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package me.bigteddy98.animatedmotd.bungee.ping;
+package me.bigteddy98.animatedmotd.bungee.examples;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import me.bigteddy98.animatedmotd.bungee.Scroller;
+import me.bigteddy98.animatedmotd.bungee.ping.ServerData;
+import me.bigteddy98.animatedmotd.bungee.ping.StatusListener;
 import net.md_5.bungee.api.ChatColor;
 
-public class DefaultPingManager implements StatusListener {
+public class ExampleHoverMessage implements StatusListener {
 
-	private final Scroller scroller1 = new Scroller(ChatColor.GOLD + "Example MOTD 1 - This is an example", 60, 10, '&');
-	private final Scroller scroller2 = new Scroller(ChatColor.GOLD + "Example MOTD 2 - This is an example", 60, 10, '&');
-
-	@Override
 	public ServerData update() {
-		ArrayList<String> list = new ArrayList<String>();
-		list.add("player 1");
-		list.add("player 2");
-		return new ServerData(this.scroller1.next(), this.scroller2.next(), 300, ChatColor.WHITE + "%COUNT%/%MAX% Players Online", list);
+		List<String> list = new ArrayList<String>();
+		list.add(ChatColor.GOLD + "" + ChatColor.BOLD + "LINE1");
+		list.add(ChatColor.RED + "" + ChatColor.BOLD + "LINE2");
+		list.add(ChatColor.WHITE + "" + ChatColor.BOLD + "LINE3");
+		return new ServerData("MOTD1", "MOTD2", 300, ChatColor.GRAY + "%COUNT%/%MAX%", list);
 	}
 }
