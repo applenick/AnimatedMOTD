@@ -27,8 +27,8 @@
 
 	<repositories>
 		<repository>
-			<id>central-repo</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<id>applenick-repo</id>
+			<url>http://repo.applenick.com/nexus/content/groups/public/</url>
 		</repository>
 	</repositories>
 
