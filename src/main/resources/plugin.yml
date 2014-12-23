@@ -1,4 +1,4 @@
 name: AnimatedMOTD
 main: me.bigteddy98.animatedmotd.bungee.Main
-version: 1.0.3
+version: ${project.version}-${git.commit.id.abbrev}
 author: Sander2798
